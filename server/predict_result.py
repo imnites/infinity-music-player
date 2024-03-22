@@ -15,7 +15,10 @@ def get_emotion_predictions(face_img):
 
     emotion_preds = model.predict(face_img)
     prediction_index = emotion_preds[0].argmax()
-    return emotion_labels[prediction_index]
+
+    percentage = emotion_preds[0][prediction_index]
+    label = emotion_labels[prediction_index]
+    return [label, percentage*100]
 
 emotion_preds = get_emotion_predictions('S010_004_00000017.png')
 print(emotion_preds)
