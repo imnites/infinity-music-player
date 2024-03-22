@@ -1,21 +1,21 @@
-import numpy as np
-import tensorflow as tf
-from sklearn.model_selection import train_test_split  
 import os
 import cv2
+import numpy as np
+import tensorflow as tf
 import matplotlib.pyplot as plt
+
 from tensorflow.keras.layers import Dropout
-from tensorflow.keras.layers import Flatten,BatchNormalization
+from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dense, MaxPooling2D,Conv2D
-from tensorflow.keras.layers import Input,Activation,Add
+from tensorflow.keras.layers import Input,Activation
 from tensorflow.keras.models import Model
 from tensorflow.keras.regularizers import l2
-from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint
-import pandas as pd
-from keras.models import Sequential,load_model,Model
-from keras.layers import Conv2D,MaxPool2D,Dense,Dropout,BatchNormalization,Flatten,Input
+
+from keras.models import Model
+from keras.layers import Conv2D,Dense,Dropout,Flatten,Input
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split 
 
 
 dataset_folder='./input/CK+48'
