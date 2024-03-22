@@ -94,7 +94,6 @@ checkpointer = ModelCheckpoint(fle_s, monitor='loss',verbose=1,save_best_only=Tr
                                save_weights_only=False, mode='auto',save_freq='epoch')
 callback_list=[checkpointer]
 
-
 save = model.fit(X_train,Y_train,batch_size=32,validation_data=(X_test,Y_test),epochs=50,callbacks=[callback_list])
 
 
