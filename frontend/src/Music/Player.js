@@ -1,26 +1,95 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import useSound from 'use-sound';
-import qala from '../assets/Tu Hai To Mujhe Phir Aur Kya Chahiye_320(PagalWorld.com.cm).mp3';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AiFillPlayCircle, AiFillPauseCircle } from 'react-icons/ai';
 import { BiSkipNext, BiSkipPrevious } from 'react-icons/bi';
 import { IconContext } from 'react-icons';
+import PropTypes from 'prop-types';
+import { Howl } from 'howler';
 
-export const Player = () => {
+const isNullOrUndefined = (val) => val === null || val === undefined;
+
+export const Player = ({ songQueue, aiMode, removeFromQueue }) => {
+  const [id, setId] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [play, { pause, duration, sound }] = useSound(qala);
-  const [currTime, setCurrTime] = useState({
-    min: '',
-    sec: ''
-  });
-
   const [seconds, setSeconds] = useState(0);
+  const [currTime, setCurrTime] = useState({
+    min: 0,
+    sec: 0
+  });
+  const [autoPlay, setAutoplay] = useState(false);
+  const [current, setCurrent] = useState(0);
+
+  const sounds = useMemo(
+    () =>
+      songQueue && songQueue.length > 0
+        ? songQueue.map(
+            (songPath) =>
+              new Howl({
+                src: require('../assets/mp3-songs/' + songPath),
+                onplay: () => {
+                  setIsPlaying(true);
+                },
+                onpause: () => {
+                  setIsPlaying(false);
+                },
+                onstop: () => {
+                  setIsPlaying(false);
+                  setCurrTime({ min: 0, sec: 0 });
+                },
+                onend: () => {
+                  setIsPlaying(false);
+                  setAutoplay(true);
+                  setCurrent(current + 1 < songQueue.length ? current + 1 : 0);
+                  if (aiMode) {
+                    removeFromQueue();
+                  }
+                }
+              })
+          )
+        : null,
+    [aiMode, current, removeFromQueue, songQueue]
+  );
+
+  const time = useMemo(() => {
+    const getDuration = () => {
+      try {
+        const _duration = sounds[current].duration(id);
+
+        const sec = Math.floor(_duration % 60);
+        const min = Math.floor(_duration / 60);
+
+        return {
+          min,
+          sec,
+          duration: Math.floor(_duration)
+        };
+      } catch (ex) {
+        return null;
+      }
+    };
+
+    return getDuration();
+  }, [id, sounds, current]);
+
+  const onPlayClick = useCallback(() => {
+    if (sounds[current]) {
+      const _id = sounds[current].play();
+      setId(_id);
+    }
+  }, [sounds, current]);
+
+  const onPauseClick = useCallback(() => {
+    if (sounds[current]) {
+      sounds[current].pause();
+    }
+  }, [sounds, current]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (sound) {
-        setSeconds(sound.seek([]));
-        const min = Math.floor(sound.seek([]) / 60);
-        const sec = Math.floor(sound.seek([]) % 60);
+      if (sounds && sounds[current]) {
+        setSeconds(sounds[current].seek());
+        const min = Math.floor(sounds[current].seek() / 60);
+        const sec = Math.floor(sounds[current].seek() % 60);
+
         setCurrTime({
           min,
           sec
@@ -28,25 +97,36 @@ export const Player = () => {
       }
     }, 1000);
     return () => clearInterval(interval);
-  }, [sound]);
+  }, [sounds, current]);
 
-  const playingButton = useCallback(() => {
-    if (isPlaying) {
-      pause();
-      setIsPlaying(false);
+  const onPrevClick = useCallback(() => {
+    sounds[current].stop();
+    if (current - 1 >= 0) {
+      sounds[current - 1].play();
+      setCurrent(current - 1);
     } else {
-      play();
-      setIsPlaying(true);
+      sounds[songQueue.length - 1].play();
+      setCurrent(songQueue.length - 1);
     }
-  }, [isPlaying, pause, play]);
+  }, [sounds, current, songQueue.length]);
 
-  const sec = duration / 1000;
-  const min = Math.floor(sec / 60);
-  const secRemain = Math.floor(sec % 60);
-  const time = {
-    min: min,
-    sec: secRemain
-  };
+  const onNextClick = useCallback(() => {
+    sounds[current].stop();
+    if (current + 1 < songQueue.length) {
+      sounds[current + 1].play();
+      setCurrent(current + 1);
+    } else {
+      sounds[0].play();
+      setCurrent(0);
+    }
+  }, [sounds, current, songQueue.length]);
+
+  useEffect(() => {
+    if (sounds && sounds[current] && (autoPlay || aiMode)) {
+      const _id = sounds[current].play();
+      setId(_id);
+    }
+  }, [autoPlay, sounds, current, aiMode]);
 
   return (
     <div className="component">
@@ -57,25 +137,37 @@ export const Player = () => {
         <p className="subTitle">Qala</p>
       </div>
       <div>
-        <button className="playButton">
+        <button
+          disabled={isNullOrUndefined(sounds && sounds.length)}
+          className="playButton"
+          onClick={onPrevClick}>
           <IconContext.Provider value={{ size: '3em', color: '#27AE60' }}>
             <BiSkipPrevious />
           </IconContext.Provider>
         </button>
         {!isPlaying ? (
-          <button className="playButton" onClick={playingButton}>
+          <button
+            disabled={isNullOrUndefined(sounds && sounds.length)}
+            className="playButton"
+            onClick={onPlayClick}>
             <IconContext.Provider value={{ size: '3em', color: '#27AE60' }}>
               <AiFillPlayCircle />
             </IconContext.Provider>
           </button>
         ) : (
-          <button className="playButton" onClick={playingButton}>
+          <button
+            disabled={isNullOrUndefined(sounds && sounds.length)}
+            className="playButton"
+            onClick={onPauseClick}>
             <IconContext.Provider value={{ size: '3em', color: '#27AE60' }}>
               <AiFillPauseCircle />
             </IconContext.Provider>
           </button>
         )}
-        <button className="playButton">
+        <button
+          disabled={isNullOrUndefined(sounds && sounds.length)}
+          className="playButton"
+          onClick={onNextClick}>
           <IconContext.Provider value={{ size: '3em', color: '#27AE60' }}>
             <BiSkipNext />
           </IconContext.Provider>
@@ -83,25 +175,37 @@ export const Player = () => {
       </div>
       <div>
         <div className="time">
-          <p>
-            {currTime.min}:{currTime.sec}
-          </p>
-          <p>
-            {time.min}:{time.sec}
-          </p>
+          {currTime ? (
+            <p>
+              {`${currTime.min} min`} : {`${currTime.sec} sec`}
+            </p>
+          ) : null}
+          {time ? (
+            <p>
+              {`${time.min} min`} : {`${time.sec} sec`}
+            </p>
+          ) : null}
         </div>
-        <input
-          type="range"
-          min="0"
-          max={duration / 1000}
-          default="0"
-          value={seconds}
-          className="timeline"
-          onChange={(e) => {
-            sound.seek([e.target.value]);
-          }}
-        />
+        {time ? (
+          <input
+            type="range"
+            min="0"
+            max={time.duration}
+            default="0"
+            value={seconds}
+            className="timeline"
+            onChange={(e) => {
+              sounds[current].seek(e.target.value);
+            }}
+          />
+        ) : null}
       </div>
     </div>
   );
+};
+
+Player.propTypes = {
+  songQueue: PropTypes.array,
+  aiMode: PropTypes.bool,
+  removeFromQueue: PropTypes.func
 };
