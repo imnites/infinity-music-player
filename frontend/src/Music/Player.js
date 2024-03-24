@@ -133,8 +133,12 @@ export const Player = ({ songQueue, aiMode, removeFromQueue }) => {
       <h2>Playing Now</h2>
       <img className="musicCover" src="https://picsum.photos/200/200" alt="Not Available" />
       <div>
-        <h3 className="title">Rubaiyyan</h3>
-        <p className="subTitle">Qala</p>
+        <h3 className="title">
+          {songQueue[current] ? songQueue[current].split('/')[1] : 'No song to play'}
+        </h3>
+        <p className="subTitle">
+          {songQueue[current] ? songQueue[current].split('/')[0] : 'No Subtitle'}
+        </p>
       </div>
       <div>
         <button
