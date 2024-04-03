@@ -3,26 +3,22 @@ import Webcam from 'react-webcam';
 import PropTypes from 'prop-types';
 import mp3s from '../mp3s.json';
 
-const serverBaseURL = 'http://localhost:8080/';
+const serverBaseURL = 'http://localhost:8080';
 
 const getEmotionOfImage = async (base64) =>
   fetch(serverBaseURL, {
-    Method: 'POST',
-    Headers: {
-      Accept: '*/*',
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
     },
-    Body: {
+    body: JSON.stringify({
       base64
-    },
+    }),
     Cache: 'default'
   })
-    .then(() => {
-      return { label: 'sadness', percentage: 90 };
-    })
+    .then((response) => response.json())
     .catch(() => {
-      return { label: 'sadness', percentage: 92 };
+      return null;
     });
 
 const getSongName = (label) => {
@@ -43,6 +39,7 @@ export const CustomWebcam = ({ addSongToQueue }) => {
         const data = await getEmotionOfImage(imageSrc);
         if (data && data.label && data.percentage > 75 && addSongToQueue) {
           const songName = getSongName(data.label);
+
           if (songName) {
             addSongToQueue(`${data.label}/${songName}`);
           }
