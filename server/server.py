@@ -33,7 +33,10 @@ class MyServer(CGIHTTPRequestHandler):
         post_body = self.rfile.read(content_len)
         jsonBody = json.loads(post_body)
         base64String = jsonBody['base64']
-        label, percentage = get_emotion_predictions_from_base64_image(base64String)
+        out = get_emotion_predictions_from_base64_image(base64String)
+        if out is None:
+            return self.wfile.write(bytes('{}', "utf8"))
+        label, percentage = out
         data = {}
         data['label'] = label
         data['percentage'] = percentage

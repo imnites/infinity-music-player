@@ -24,7 +24,7 @@ def read_datasets(dataset_folder):
     images=[]
     labels=[]
 
-    sub_folders=os.listdir(dataset_folder)
+    sub_folders=sorted(os.listdir(dataset_folder))
     num_classes = len(sub_folders)
 
     for sub_folder_index, sub_folder in enumerate(sub_folders):
@@ -44,7 +44,7 @@ def read_datasets(dataset_folder):
 
 
 
-def pre_process_data(images, labels):
+def pre_process_data(images, labels, num_of_classes):
     
     # Declare x and y
     images_x = np.array(images)
@@ -54,7 +54,7 @@ def pre_process_data(images, labels):
     images_x = images_x/255
 
     # encoding the labels
-    num_of_classes = 7
+    # num_of_classes = 7
     labels_y_encoded = tf.keras.utils.to_categorical(labels_y, num_classes=num_of_classes)
 
     return train_test_split(images_x, labels_y_encoded,test_size=0.25, random_state=10)
@@ -89,7 +89,7 @@ def cnn_architecture(num_classes):
 
 def train_model():
     images, labels, num_classes = read_datasets('./input/CK+48')
-    X_train, X_test, Y_train, Y_test = pre_process_data(images, labels)
+    X_train, X_test, Y_train, Y_test = pre_process_data(images, labels, num_classes)
     input, output = cnn_architecture(num_classes)
 
     # Model compile
