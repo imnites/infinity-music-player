@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
-import Webcam from 'react-webcam';
+import Webcamera from 'react-webcam';
 import PropTypes from 'prop-types';
-import mp3s from '../mp3s.json';
+import mp3s from './mp3s.json';
 
 const serverBaseURL = 'http://localhost:8080';
 
@@ -29,7 +29,7 @@ const getSongName = (label) => {
   }
 };
 
-export const CustomWebcam = ({ addSongToQueue }) => {
+export const Webcam = ({ changeSong }) => {
   const webcamRef = useRef(null);
 
   useEffect(() => {
@@ -37,27 +37,27 @@ export const CustomWebcam = ({ addSongToQueue }) => {
       if (webcamRef && webcamRef.current) {
         const imageSrc = webcamRef.current.getScreenshot();
         const data = await getEmotionOfImage(imageSrc);
-        if (data && data.label && data.percentage > 75 && addSongToQueue) {
+        if (data && data.label && changeSong) {
           const songName = getSongName(data.label);
 
           if (songName) {
-            addSongToQueue(`${data.label}/${songName}`);
+            changeSong(`${data.label}/${songName}`);
           }
         }
       }
     }, 3000);
     return () => clearInterval(interval);
-  }, [addSongToQueue]);
+  }, [changeSong]);
 
   return (
     <div className="container">
-      <Webcam mirrored height={200} width={200} ref={webcamRef} />
+      <Webcamera mirrored height={200} width={200} ref={webcamRef} />
     </div>
   );
 };
 
-CustomWebcam.propTypes = {
-  addSongToQueue: PropTypes.func
+Webcam.propTypes = {
+  changeSong: PropTypes.func
 };
 
-export default CustomWebcam;
+export default Webcam;

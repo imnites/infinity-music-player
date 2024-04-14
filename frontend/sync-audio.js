@@ -41,12 +41,11 @@ const readFiles = (songsPath) => {
 const labelAndFiles = {};
 
 labelAndFiles.happy = readFiles('./src/assets/mp3-songs/happy');
-labelAndFiles.sadness = readFiles('./src/assets/mp3-songs/sadness');
-labelAndFiles.anger = readFiles('./src/assets/mp3-songs/anger');
-labelAndFiles.contempt = readFiles('./src/assets/mp3-songs/contempt');
-labelAndFiles.disgust = readFiles('./src/assets/mp3-songs/disgust');
-labelAndFiles.fear = readFiles('./src/assets/mp3-songs/fear');
-labelAndFiles.surprise = readFiles('./src/assets/mp3-songs/surprise');
+labelAndFiles.neutral = readFiles('./src/assets/mp3-songs/neutral');
+labelAndFiles.susurprise = readFiles('./src/assets/mp3-songs/susurprise');
+labelAndFiles.rocrock = readFiles('./src/assets/mp3-songs/rocrock');
+labelAndFiles.angry = readFiles('./src/assets/mp3-songs/angry');
+labelAndFiles.sad = readFiles('./src/assets/mp3-songs/sad');
 
 fs.writeFile('./src/mp3s.json', JSON.stringify(labelAndFiles), 'utf8', () => {
   console.log('successfully synced');
